@@ -30,7 +30,8 @@ define(['backbone','underscore','_.asynch'], function(Backbone, undef, undef) {
 			// listen to events on the collection
 			this.listenTo(this.collection, 'add', this.handleAdd)
 				.listenTo(this.collection, 'remove', this.handleRemove)
-				.listenTo(this.collection, 'reset', this.handleReset);
+				.listenTo(this.collection, 'reset', this.handleReset)
+				.listenTo(this.collection, 'sort', this.handleSort);
 
 			// start things up.
 			this.start(this.collection);
@@ -109,7 +110,7 @@ define(['backbone','underscore','_.asynch'], function(Backbone, undef, undef) {
 		/**
 		 * The view
 		 */
-		itemView: function() {},
+		itemView: false,
 
 		/**
 		 * method returns a selector used to find the html representation of a given model.
@@ -142,16 +143,16 @@ define(['backbone','underscore','_.asynch'], function(Backbone, undef, undef) {
 					// and add the 'index data'
 				var $item = $(itemHtml).attr( _this.indexAttr, _this.collection.indexOf(model) ),
 					// build the view
-					view = new _this.itemView({
+					view = _this.itemView ? new _this.itemView({
 						el: $item,
 						model: model
-					});
+					}) : false;
 
 				_this._execActionSequence(['beforeAdd','add','afterAdd'], [model, $item, $itemPlaceholder]);
 			});
 		},
 
-		handleReset: function(collection, models) {
+		handleReset: function(collection, options) {
 			this._execActionSequence(['beforeReset','reset','afterReset'], [collection, this.$container]);
 		},
 
@@ -160,6 +161,10 @@ define(['backbone','underscore','_.asynch'], function(Backbone, undef, undef) {
 			var $item = this.retrieveElement(model);
 
 			this._execActionSequence(['beforeRemove','remove','afterRemove'], [model, $item]);
+		},
+
+		handleSort: function(collection, options) {
+			this._execActionSequence(['beforeSort','sort','afterSort'], [collection, this.$container]);
 		},
 
 		/**

@@ -1,18 +1,22 @@
 define(['../backbone.view.collection','backbone','jquery'], function(CollectionView, Backbone, $) {
 
 	var Collection = Backbone.Collection.extend({
-		comparator: function(model) {
-			return model.get('id');
-		},
-	})
+		comparator: 'id',
+
+		resort: function(comparator, options) {
+			this.comparator = comparator;
+			return this.sort(options);
+		}
+	});
 
 	var collection = window.collection = new Collection ([
-		{ id: 1, name: 'apple' },
-		{ id: 2, name: 'banana' },
-		{ id: 3, name: 'pineapple' },
+		{ id: 1, name: 'banana' },
+		{ id: 2, name: 'apple' },
+		{ id: 3, name: 'watermelon' },
+		{ id: 4, name: 'pineapple' },
 	]);
 
-	var View = CollectionView.extend({
+	var SortableCollection = CollectionView.extend({
 		itemData: function(model) {
 			var defer = $.Deferred(),
 				data = model.attributes;
@@ -38,9 +42,9 @@ define(['../backbone.view.collection','backbone','jquery'], function(CollectionV
 	});
 
 
-	window.view = new View({
+	window.fruits = new SortableCollection({
 		el: $('body'),
-		list: $('#list'),
+		container: $('#list'),
 		collection: collection,
 	});
 
