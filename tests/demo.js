@@ -1,4 +1,4 @@
-define(['backbone.collectionview','backbone','jquery'], function(CollectionView, Backbone, $) {
+define(['../backbone.view.collection','backbone','jquery'], function(CollectionView, Backbone, $) {
 
 	var Collection = Backbone.Collection.extend({
 		comparator: function(model) {
@@ -17,7 +17,7 @@ define(['backbone.collectionview','backbone','jquery'], function(CollectionView,
 			var defer = $.Deferred(),
 				data = model.attributes;
 
-			setTimeout(_.partial(defer.resolve, data), 1000);
+			setTimeout(_.partial(defer.resolve, data), 1000 * 1/model.get('id'));
 
 			return defer;
 		},
@@ -38,7 +38,7 @@ define(['backbone.collectionview','backbone','jquery'], function(CollectionView,
 	});
 
 
-	var view = new View({
+	window.view = new View({
 		el: $('body'),
 		list: $('#list'),
 		collection: collection,

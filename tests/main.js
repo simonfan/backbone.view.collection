@@ -9,9 +9,6 @@ require.config({
 
 		'_.asynch': 'components/_.asynch/_.asynch',
 
-		// the module files go here
-		'backbone.collectionview': '../backbone.collectionview',
-
 		// DEMO
 		'demo-main': 'demo',	// the main file for the demo
 

@@ -36,7 +36,10 @@ define(['backbone','underscore','_.asynch'], function(Backbone, undef, undef) {
 			this.start(this.collection);
 		},
 
-
+		/**
+		 * OVERWRITE OPTIONS
+		 */
+		indexAttr: 'data-index',
 
 		/**
 		 * OVERWRITE METHODS
@@ -49,13 +52,20 @@ define(['backbone','underscore','_.asynch'], function(Backbone, undef, undef) {
 		/**
 		 * actions
 		 */
-		beforeAdd: function(model, $el) { $el.css('opacity', 0); },
-		add: function(model, $el) {
+		place: function(model, $placeholder) {
 			// get model's index
 			var index = this.collection.indexOf(model),
 				$beforeIndex = this.$container.children().eq(index - 1);
 
-			$beforeIndex.length > 0 ? $beforeIndex.after($el) : this.$container.append($el);
+			$beforeIndex.length > 0 ? $beforeIndex.after($placeholder) : this.$container.append($placeholder);
+		},
+		beforeAdd: function(model, $el, $placeholder) {
+			$el.css('opacity', 0);
+
+			return $placeholder.animate({ opacity: 0 });
+		},
+		add: function(model, $el, $placeholder) {
+			$placeholder.replaceWith($el);
 		},
 		afterAdd: function(model, $el) { return $el.animate({ opacity: 1 }); },
 
@@ -73,13 +83,18 @@ define(['backbone','underscore','_.asynch'], function(Backbone, undef, undef) {
 		afterReset: function(collection, $container) {},
 
 		beforeSort: function(collection, $container) {},
-		sort: function(collection, $container) {},
+		sort: function(collection, $container) {
+			this.handleReset(collection, $container);
+		},
 		afterSort: function(collection, $container) {},
-
 
 		/**
 		 * method returns data to be used in the template.
 		 */
+		itemPlaceholder: function(model) {
+			return '<li class="placeholder">placeholder for '+ model.get('id') +'</li>';
+		},
+
 		itemData: function(model) {
 			return model.attributes;
 		},
@@ -101,7 +116,7 @@ define(['backbone','underscore','_.asynch'], function(Backbone, undef, undef) {
 		 * within the $el of this container view.
 		 */
 		itemSelector: function(model) {
-			return '#' + model.id;
+			return '['+this.indexAttr +'='+ this.collection.indexOf(model)+']';
 		},
 
 
@@ -109,23 +124,30 @@ define(['backbone','underscore','_.asynch'], function(Backbone, undef, undef) {
 		 * Event handlers
 		 */
 		handleAdd: function(model) {
+
+			var $itemPlaceholder = $( this.itemPlaceholder(model) ),
 				// get the data for the template rendering
 				// if there is an itemData function set, use it. Otherwise just use the model's attributes.
-			var itemData = (typeof this.itemData === 'function') ? this.itemData(model) : model.attributes,
+				itemData = (typeof this.itemData === 'function') ? this.itemData(model) : model.attributes,
 				// promise based render itemnail
 				renderItem = $.when(itemData).then(this.itemTemplate),
 				_this = this;
 
+			// placehold
+			this.place(model, $itemPlaceholder);
+
 			// wait for the itemnail to be rendered to continue.
 			renderItem.then(function(itemHtml) {
-				var $item = $(itemHtml),
+					// wrap the item html in a jquery object 
+					// and add the 'index data'
+				var $item = $(itemHtml).attr( _this.indexAttr, _this.collection.indexOf(model) ),
 					// build the view
 					view = new _this.itemView({
 						el: $item,
 						model: model
 					});
 
-				_this._execActionSequence(['beforeAdd','add','afterAdd'], [model, $item]);
+				_this._execActionSequence(['beforeAdd','add','afterAdd'], [model, $item, $itemPlaceholder]);
 			});
 		},
 

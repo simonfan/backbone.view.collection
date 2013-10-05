@@ -1,5 +1,5 @@
 {
-  "name": "backbone.collectionview",
+  "name": "backbone.view.collection",
   "version": "0.0.1",
   "dependencies": {
     "backbone": "~1.0.0",
@@ -8,5 +8,5 @@
     "requirejs": "~2.1.8",
     "_.asynch": "simonfan/_.asynch"
   },
-  "main": "backbone.collectionview.js"
+  "main": "backbone.view.collection.js"
 }
